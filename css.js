@@ -25,7 +25,7 @@ const css = module.exports = {
 		cache.push(css.render(css.parse(obj)));
 		return obj;
 	},
-	convert : (styleObj)=>css.render(css.parse(obj)),
+	convert : (styleObj)=>css.render(css.parse(styleObj)),
 
 	parse : (styleObj)=>{
 		let res = {};
