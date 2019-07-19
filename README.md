@@ -97,7 +97,7 @@ css.convert({
 Since the style object is just JSON, you can substitute it for YAML if you like
 
 ```js
-css.convert(`
+css.convert(yaml(`
   body:
     margin-left: 20px
     marginTop: 20px
@@ -106,7 +106,7 @@ css.convert(`
       color: "#BADA55"
       "&:hover":
         color: "#C0FF33"
-`)
+`))
 ```
 
 #### built-in color lib
