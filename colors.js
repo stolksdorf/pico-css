@@ -1,7 +1,7 @@
 
 
 const adjustColor = (color, amount)=>{
-	const amt = (amount > 1 ? amount / 100 : amount) * 255;
+	const amt = (Math.abs(amount) > 1 ? amount / 100 : amount) * 255;
 	const { r, g, b } = utils.hex2rgb(utils.getHex(color));
 	return utils.rgb2hex({
 		r : r + amt,
