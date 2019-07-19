@@ -1,40 +1,17 @@
-const htmlTags = require('./html.tags.js');
+const kebobCase = (string)=>string.replace(/([A-Z])/g, '-$1').toLowerCase();
+const map = (obj, fn)=>Object.keys(obj).map((key)=>fn(obj[key], key));
+const processKey = (key, prefix)=>`${prefix} ${key}`.trim().replace(' &', '').replace(' :', ':');
 
-const kebobCase = (string) => string.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-
-
-const shallowMerge = (...objs)=>{
-	//Merge objects one layer deep
-};
-
-const processKey = (key, prefix)=>{
-	if(key /* && opts.convertToClass */){
-		//TODO: Look up the naming convention for selectors
-		if(/[a-zA-Z0-9]/.test(key[0]) && !htmlTags.includes(key)) key = `.${key}`;
-	}
-	return `${prefix} ${key}`.trim().replace(' &', '').replace(' :', ':')
-}
-
-let cache = [];
-
-
-const css = module.exports = {
-
-	add : (obj)=>{
-		//console.log(module.parent);
-		cache.push(css.render(css.parse(obj)));
-		return obj;
-	},
+const css = {
 	convert : (styleObj)=>css.render(css.parse(styleObj)),
-
-	parse : (styleObj)=>{
-		let res = {};
-		const subParse = (field, nextKey='', prefix='')=>{
+	parse   : (styleObj)=>{
+		const res = {};
+		const subParse = (field, nextKey = '', prefix = '')=>{
 			if(Array.isArray(field)){
-				return field.map((subfield)=>subParse(subfield, nextKey, prefix))
+				return field.map((subfield)=>subParse(subfield, nextKey, prefix));
 			}
 			if(typeof field == 'object'){
-				return Object.keys(field).map((key)=>subParse(field[key], key, processKey(nextKey, prefix)));
+				return map(field, (val, key)=>subParse(val, key, processKey(nextKey, prefix)));
 			}
 			res[prefix] = res[prefix] || {};
 			return res[prefix][kebobCase(nextKey)] = field;
@@ -42,18 +19,37 @@ const css = module.exports = {
 		subParse(styleObj);
 		return res;
 	},
-	// Add opt to clear cache when printing from cache
-	render : (obj, minify=false)=>{
-		return Object.keys(obj).map((selector)=>{
-			const rules = obj[selector];
-			const renderedRules = Object.keys(rules).map((rule)=>{
-				return minify
-					? `${rule}:${rules[rule]};`
-					: `\t${rule}: ${rules[rule]};\n`
-			}).join('');
-			return minify
-				? `${selector}{${renderedRules}}`
-				: `${selector}{\n${renderedRules}}\n`
+	render : (cssObj)=>{
+		return map(cssObj, (rules, selector)=>{
+			const renderedRules = map(rules, (rule, name)=>`\t${name}: ${rule};\n`).join('');
+			return `${selector}{\n${renderedRules}}\n`;
 		}).join('');
-	}
+	},
+	inject : (styleId, styleObj)=>{
+		if(typeof styleId !== 'string'){
+			styleObj = styleId;
+			styleId = false;
+		}
+		if(styleId && document.getElementById(styleId)){
+			return document.getElementById(styleId).innerHTML = css.convert(styleObj);
+		}
+		const style = document.createElement('style');
+		if(styleId) style.setAttribute('id', styleId);
+		style.innerHTML = css.convert(styleObj);
+		document.head.appendChild(style);
+	},
+
+	cache : [],
+	add   : (styleObj)=>{
+		const res = css.parse(styleObj);
+		css.cache.push(res);
+		return res;
+	},
+	compile : ()=>{
+		const res = css.cache.map(css.render).join('\n');
+		css.cache = [];
+		return res;
+	},
 };
+
+module.exports = css;
