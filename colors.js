@@ -1,4 +1,4 @@
-
+const clamp = (val, min, max)=>[val, min, max].sort((a,b)=>a-b)[1];
 
 const adjustColor = (color, amount)=>{
 	const amt = (Math.abs(amount) > 1 ? amount / 100 : amount) * 255;
@@ -45,7 +45,7 @@ const utils = {
 	},
 	//FIXME works with short hex codes?
 	hex2rgb : (hex)=>{
-		const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+		const result = /^#?([a-f\d]{2}|[a-f\d]{1})([a-f\d]{2}|[a-f\d]{1})([a-f\d]{2}|[a-f\d]{1})$/i.exec(hex);
 		return result ? {
 			r : parseInt(result[1], 16),
 			g : parseInt(result[2], 16),
@@ -53,7 +53,7 @@ const utils = {
 		} : null;
 	},
 	rgb2hex : ({ r, g, b })=>{
-		const con = (val)=>Math.floor(val).toString(16).padStart(2, '0').toUpperCase();
+		const con = (val)=>clamp(Math.floor(val),0,255).toString(16).padStart(2, '0').toUpperCase();
 		return `#${con(r)}${con(g)}${con(b)}`;
 	},
 

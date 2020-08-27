@@ -3,33 +3,29 @@ const map = (obj, fn)=>Object.keys(obj).map((key)=>fn(obj[key], key));
 const processKey = (key, prefix)=>`${prefix} ${key}`.trim().replace(' &', '').replace(' :', ':');
 
 const css = {
-	convert : (styleObj)=>css.render(css.parse(styleObj)),
 	parse   : (styleObj)=>{
-		const res = {};
-		const subParse = (field, nextKey = '', prefix = '')=>{
-			if(Array.isArray(field)){
-				return field.map((subfield)=>subParse(subfield, nextKey, prefix));
-			}
+		let result = {};
+		const subParse = (field, nextKey='', prefix='')=>{
 			if(typeof field == 'object'){
 				return map(field, (val, key)=>subParse(val, key, processKey(nextKey, prefix)));
 			}
-			res[prefix] = res[prefix] || {};
-			return res[prefix][kebobCase(nextKey)] = field;
+			result[prefix] = result[prefix] || {};
+			return result[prefix][kebobCase(nextKey)] = field;
 		};
 		subParse(styleObj);
-		return res;
+		return result;
 	},
-	render : (cssObj)=>{
+	render : (cssObj, indent='\t')=>{
 		return map(cssObj, (rules, selector)=>{
-			const renderedRules = map(rules, (rule, name)=>`\t${name}: ${rule};\n`).join('');
+			const renderedRules = map(rules, (rule, name)=>`${indent}${name}: ${rule};\n`).join('');
 			return `${selector}{\n${renderedRules}}\n`;
 		}).join('');
-	},
-	inject : (styleId, styleObj)=>{
-		if(typeof styleId !== 'string'){
-			styleObj = styleId;
-			styleId = false;
-		}
+	}
+};
+
+let cache = [];
+const utils = {
+	inject : (styleObj, styleId=false)=>{
 		if(styleId && document.getElementById(styleId)){
 			return document.getElementById(styleId).innerHTML = css.convert(styleObj);
 		}
@@ -38,18 +34,19 @@ const css = {
 		style.innerHTML = css.convert(styleObj);
 		document.head.appendChild(style);
 	},
-
-	cache : [],
-	add   : (styleObj)=>{
+	add : (styleObj)=>{
 		const res = css.parse(styleObj);
-		css.cache.push(res);
+		cache.push(res);
 		return res;
 	},
 	compile : ()=>{
-		const res = css.cache.map(css.render).join('\n');
-		css.cache = [];
+		const res = cache.map(css.render).join('\n');
+		cache = [];
 		return res;
 	},
 };
 
-module.exports = css;
+module.exports = Object.assign(
+	(styleObj, indent)=>css.render(css.parse(styleObj), indent),
+	css, utils
+)

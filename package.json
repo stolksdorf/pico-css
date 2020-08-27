@@ -1,11 +1,11 @@
 {
   "name": "pico-css",
-  "version": "1.0.0",
-  "description": "A micro css preprocessor",
+  "version": "2.0.0",
+  "description": "A micro css preprocessor using json",
   "main": "css.js",
   "scripts": {
-    "test": "pico-check",
-    "dev": "pico-check -w -v"
+    "test": "pico-check ./tests",
+    "dev": "pico-check --watch ./tests"
   },
   "repository": {
     "type": "git",
@@ -17,13 +17,13 @@
     "css"
   ],
   "author": "stolksdorf",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/stolksdorf/pico-css/issues"
   },
   "homepage": "https://github.com/stolksdorf/pico-css#readme",
   "devDependencies": {
-    "pico-check": "^1.0.2"
+    "pico-check": "^2.0.3"
   },
   "dependencies": {}
 }

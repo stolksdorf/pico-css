@@ -1,52 +1,89 @@
-const test = require('pico-check');
 const css = require('../css.js');
+const colors = require('../colors.js');
 
-const pad = (num = 25)=>{
-	return { padding : num };
-};
+module.exports = {
+	nesting : (t)=>{
+		const parsed = css.parse({
+			p : {
+				color : 'blue',
+				'.test' : {
+					display : 'block'
+				}
+			}
+		})
 
-// const res = css.add({
-// 	color : 'green',
-// 	test : {
-// 		marginRight : 40,
-// 		test2 : {
-// 			padding : 30,
-// 			display : 'flex',
-// 			':hover' : {
-// 				color : 'red',
-// 				button : {
-// 					padding : 40
-// 				}
-// 			}
-// 		}
-// 	},
-// 	test3 : [{
-// 		marginRight : 50,
-// 		yes : {
-// 			color : 'blue',
-// 			':hover' : pad(999)
-// 		}
-// 	}, pad()],
-// 	yo : {
-// 		color : 'red'
-// 	}
-// });
-
-// console.log(res);
-
-// console.log(css.render(css.parse(res)));
-
-console.log(css.parse({  body : {
-	'margin-left' : '20px',
-	marginTop     : '20px',
-	width         : '100%',
-	p             : {
-		color     : '#BADA55',
-		'&:hover' : {
-			color : '#C0FF33',
-		},
+		t.is(parsed.p.color, 'blue');
+		t.is(parsed['p .test'].display, 'block');
 	},
-} }));
+	'& Symbols' : (t)=>{
+
+		const parsed = css.parse({
+			p : {
+				color : 'blue',
+				'&.test' : {
+					display : 'block',
+					'&:hover': {
+						color : 'red',
+					}
+				}
+			}
+		})
+
+		t.is(parsed.p.color, 'blue');
+		t.is(parsed['p.test'].display, 'block');
+		t.is(parsed['p.test:hover'].color, 'red');
+	},
+
+	'kebob case' : (t)=>{
+		const parsed = css.parse({
+			p : {
+				marginRight : '40px',
+				doesNotExist : 'foo',
+				WebkitTransition: 'all 4s ease',
+				'.TestClass' : {
+					foo : 'bar'
+				}
+			}
+		})
+
+		t.is(parsed.p['margin-right'], '40px');
+		t.is(parsed.p['does-not-exist'], 'foo');
+		t.is(parsed.p['-webkit-transition'], 'all 4s ease');
+
+		//Does not kebob class names
+		t.is(parsed['p .TestClass'].foo, 'bar');
+	},
 
 
-module.exports = test;
+	mixins : (t)=>{
+
+		const button = (color='green')=>{
+			return {
+				display : 'block',
+				cursor : 'pointer',
+				'&:hover' : {
+					backgroundColor : color
+				}
+			}
+		}
+
+		const parsed = css.parse({
+			p : {
+				display : 'relative',
+				marginRight : '40px',
+				...button('purple')
+			}
+		})
+
+		t.is(parsed, {
+			p: {
+				display: 'block',
+				'margin-right': '40px',
+				cursor: 'pointer'
+			},
+			'p:hover': {
+				'background-color': 'purple'
+			}
+		})
+	}
+};
