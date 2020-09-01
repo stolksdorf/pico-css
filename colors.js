@@ -1,4 +1,4 @@
-const clamp = (val, min, max)=>[val, min, max].sort((a,b)=>a-b)[1];
+const clamp = (val, min, max)=>[min, val, max].sort((a,b)=>a-b)[1];
 
 const adjustColor = (color, amount)=>{
 	const amt = (Math.abs(amount) > 1 ? amount / 100 : amount) * 255;
