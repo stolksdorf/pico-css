@@ -1,6 +1,8 @@
 # 🎨 pico-css
 A micro css preprocessor written in JS for JS. Under 60 lines.
 
+[![npm version](https://badge.fury.io/js/pico-css.svg)](https://badge.fury.io/js/pico-css)
+
 
 ### install
 
