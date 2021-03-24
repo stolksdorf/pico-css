@@ -6,7 +6,7 @@ module.exports = {
 	basic : require('./basic.test.js'),
 	colors : require('./colors.test.js'),
 
-	$literal : require('./string_literal.test.js'),
+	literal : require('./string_literal.test.js'),
 
 
 

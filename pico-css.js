@@ -1,5 +1,10 @@
 const kebobCase = (string)=>string.replace(/([A-Z])/g, '-$1').toLowerCase();
-const processKey = (key, prefix)=>`${prefix} ${key}`.trim().replace(' &', '').replace(' :', ':');
+//const processKey = (key, prefix)=>`${prefix} ${key}`.trim().replace(' &', '').replace(' :', ':');
+const processKey = (key, prefix)=>{
+	return prefix.split(',').map(pre=>{
+		return `${pre.trim()} ${key}`.trim().replace(' &', '').replace(' :', ':');
+	}).join(', ');
+}
 const isObj = (obj)=>!!obj && (typeof obj == 'object' && obj.constructor == Object);
 const undef = (obj)=>typeof obj === 'undefined';
 const put = (obj, keys, val)=>{
@@ -43,13 +48,13 @@ const convert = (styleObj, indent='\t')=>{
 		return `${selector}{\n${renderedRules}}\n`;
 	}).join('');
 };
-const inject = (cssString, elementId=false)=>{
-	if(elementId && document.getElementById(elementId)) return document.getElementById(elementId).innerHTML = cssString;
-	const style = document.createElement('style');
-	if(elementId) style.setAttribute('id', elementId);
-	style.innerHTML = cssString;
-	document.head.appendChild(style);
-};
+// const inject = (cssString, elementId=false)=>{
+// 	if(elementId && document.getElementById(elementId)) return document.getElementById(elementId).innerHTML = cssString;
+// 	const style = document.createElement('style');
+// 	if(elementId) style.setAttribute('id', elementId);
+// 	style.innerHTML = cssString;
+// 	document.head.appendChild(style);
+// };
 const css = (strs, ...vals)=>{
 	let str = Array.isArray(strs) ? weave(strs, vals).join('') : strs;
 	let keys = [], result = {}, inComment=false;
@@ -57,7 +62,7 @@ const css = (strs, ...vals)=>{
 		[/\/\*/,                     ()=>inComment=true],
 		[/\*\//,                     ()=>inComment=false],
 		[/\/\/.*/,                   ()=>null],
-		[/([\w:\.&-]+)\s*{/,         ([selector])=>{if(!inComment){keys.push(selector)}}],
+		[/([\w:\.&-,\*\s]+)\s*{/,    ([selector])=>{if(!inComment){keys.push(selector.trim())}}],
 		[/([\w+-]+)\s*:\s*([^;]+);/, ([key, val])=>{if(!inComment){result = put(result, keys.concat(key), val)}}],
 		[/}/,                        ()=>{if(!inComment){keys.pop()}}],
 	], str)
@@ -67,5 +72,5 @@ const css = (strs, ...vals)=>{
 module.exports = {
 	convert,
 	css,
-	inject
+	//inject
 }
