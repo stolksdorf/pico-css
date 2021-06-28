@@ -1,5 +1,5 @@
 # 🎨 pico-css
-A micro css preprocessor written in JS for JS. Under 60 lines.
+A micro css preprocessor written in JS for JS. Under 100 lines. Supports nesting, mixins, parent selectors, and injectable values.
 
 
 ### install
@@ -10,43 +10,39 @@ npm install pico-css
 
 ```js
 const css = require('pico-css');
-const colors = require('pico-css/colors');
+const {lighten} = require('pico-css/chroma.js');
 
-const buttonMixin = (color='blue')=>{
-  return {
-    cursor : 'pointer',
-    backgroundColor : color,
-    '&:hover' : {
-      backgroundColor : colors.lighten(color, 0.2)
+const btn = (color)=>{
+  return css`
+    cursor : pointer;
+    background-color: ${color};
+    &:hover{
+      background-color: ${lighten(color, 0.2)};
     }
-  }
+  `
 }
 
-const str = css({
-  body: {
-    "margin-left": "20px",
-    marginTop: "20px",
-    width: "100%",
-    button: {
-      WebkitTransition: 'all 4s ease',
-      ...buttonMixin("#BADA55")
+css`
+  body{
+    margin-top : 20px;
+    button{
+      font-size : 2em;
+      ${btn('#dabb1e')}
     }
   }
-});
+`;
 
 // Converts to
 `body{
-  margin-left: 20px;
   margin-top: 20px;
-  width: 100%;
 }
 body button{
-  -webkit-transition: all 4s ease;
+  font-size: 2em;
   cursor: pointer;
-  background-color: #BADA55;
+  background-color: #dabb1e;
 }
 body button:hover{
-  background-color: #EDFF88;
+  background-color: #e1c84b;
 }
 `
 ```
@@ -55,7 +51,7 @@ body button:hover{
 ## why?
 CSS preprocessors, like Less and Sass, are very powerful, but require you to learn a new sub-language and any business logic would need to be duplicated between rendering and styling.
 
-They also provide _way more features_ then is typically needed, and can lead to weird footguns. `pico-css` is just a simple lib for convert js-like objects into valid css.
+They also provide _way more features_ then is typically needed, and can lead to weird footguns. `pico-css` is just a simple lib for convert nested css into valid css while leveraging JS for variables and logic.
 
 
 
@@ -97,34 +93,44 @@ p.selected{
 }`
 ```
 
-#### Kebob-case Capitals
-To avoid quoting keys with `-`'s in them, any capitals in rule names will be automatically dashed.
+#### mixins (aka no-root selector)
+
+You can pass just rules to the parser and it will process them. This allows you to build `mixins` which can be used to copy repeated css, or create functions that return chunks of css.
+
 
 ```js
-css({
-  body: {
-    marginLeft: "20px",
-    //selectors will not be affected
-    ".Animated" :{
-      WebkitTransition: "all 4s ease",
+
+const btn = (color)=>{
+  return css`
+    cursor : pointer;
+    background-color: ${color};
+    &:hover{
+      background-color: ${lighten(color, 0.2)};
+    }
+  `
+}
+
+css`
+  body{
+    margin-top : 20px;
+    button{
+      font-size : 2em;
+      ${btn('#dabb1e')}
     }
   }
-})
-
-`body{
-  margin-left : 20px;
-}
-body .Animated{
-  -webkit-transition: all 4s ease;
-}`
+`;
 ```
+
+
+
+
 
 #### variables & functions & mixins
 Since this is just javascript, you get variables, functions, and mixins for free without learning a new syntax.
 
 ```js
 const css = require('pico-css');
-const colors = require('pico-css/colors');
+const chroma = require('pico-css/chroma');
 
 
 const coloredButton = (color='red')=>{
@@ -132,7 +138,7 @@ const coloredButton = (color='red')=>{
     border : 'none',
     backgroundColor : color,
     '&:hover':{
-      backgroundColor : colors.lighten(color, 0.2)
+      backgroundColor : chroma.lighten(color, 0.2)
     }
   }
 }
@@ -152,23 +158,6 @@ css({
 button:hover{
   background-color: ;
 }`
-```
-
-#### YAML-compatible
-Since the style object is just JSON, you can substitute it for YAML if you like
-
-```js
-
-css(yaml2json(`
-  body:
-    margin-left: 20px
-    marginTop: 20px
-    width: 100%
-    p:
-      color: "#BADA55"
-      "&:hover":
-        color: "#C0FF33"
-`));
 ```
 
 

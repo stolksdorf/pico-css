@@ -1,7 +1,37 @@
-const {css} = require('../pico-css.js');
+const css = require('../pico-css.js');
 
 
 module.exports = {
+
+	media_queries : (t)=>{
+		//throw 'You need to implement this';
+
+
+		const res = css`
+
+			body {
+				color : white;
+				backgroundColor: purple;
+
+				p {
+					color : blue;
+				}
+
+			}
+
+			@media screen and (max-width: 992px)    {
+			  body, h2 {
+			    background-color: blue;
+
+			    &:hover{
+			    	background-color : red;
+			    }
+			  }
+			}
+		`
+
+		console.log(res)
+	},
 
 
 	basic : (t)=>{
@@ -60,7 +90,20 @@ module.exports = {
 
 		`
 
-		console.log('----------')
+
+	},
+
+	obj_param : (t)=>{
+
+		const res = css({
+			body : {
+				backgroundColor : 'red',
+				'&:hover' : {
+					color : 'white'
+				}
+			}
+		})
+
 		console.log(res)
 
 	}

@@ -1,12 +1,9 @@
-const kebobCase = (string)=>string.replace(/([A-Z])/g, '-$1').toLowerCase();
-//const processKey = (key, prefix)=>`${prefix} ${key}`.trim().replace(' &', '').replace(' :', ':');
-const processKey = (key, prefix)=>{
-	return prefix.split(',').map(pre=>{
-		return `${pre.trim()} ${key}`.trim().replace(' &', '').replace(' :', ':');
-	}).join(', ');
-}
 const isObj = (obj)=>!!obj && (typeof obj == 'object' && obj.constructor == Object);
 const undef = (obj)=>typeof obj === 'undefined';
+const kebobCase = (string)=>string.replace(/([A-Z])/g, '-$1').toLowerCase();
+const processKey = (key, prefix)=>{
+	return prefix.split(',').map(pre=>`${pre.trim()} ${key}`.trim().replace(' &', '').replace(' :', ':')).join(', ');
+};
 const put = (obj, keys, val)=>{
 	const key = keys.shift();
 	if(!isObj(obj[key])) obj[key] = {};
@@ -17,7 +14,7 @@ const weave = (...arrs)=>{
 	return arrs[0].reduce((acc,_,idx)=>{ arrs.map(arr=>{ if(!undef(arr[idx])) acc.push(arr[idx]) }); return acc; }, []);
 };
 const picoparse = (rules, text)=>{
-	let remaining = text, result = [];
+	let remaining = text, result = [], skip=false, pos=0;
 	while(remaining.length > 0){
 		let match = rules.reduce((best, [rgx, fn])=>{
 			let match = rgx.exec(remaining);
@@ -26,51 +23,73 @@ const picoparse = (rules, text)=>{
 			return best;
 		}, false);
 		if(!match) break;
-		const [matchedText, ...groups] = match;
-		result.push(match.func(groups, matchedText, remaining.substring(0,match.index)));
-		remaining = remaining.substring(match.index + matchedText.length);
+		const [text, ...groups] = match;
+		pos += match.index;
+		const res = match.func(groups, {text, pos, pre:remaining.substring(0,match.index)})
+		if(typeof res == 'boolean'){ skip = res; }
+		else if(!skip && res){ result.push(res); }
+		remaining = remaining.substring(match.index + text.length);
 	}
 	return result;
 };
+picoparse.loc = (text, pos)=>{
+	const sel = text.substring(0,pos);
+	return {
+		line: sel.match('\n').length,
+		col : sel.length - sel.lastIndexOf('\n')
+	}
+};
 
-const convert = (styleObj, indent='\t')=>{
+const flatten = (styleObj)=>{
 	let result = {};
-	const subParse = (field, nextKey='', prefix='')=>{
+	const subFlatten = (field, nextKey='', prefix='')=>{
+		if(nextKey.startsWith('@media')){
+			return result[nextKey] = Object.assign(result[nextKey]||{}, flatten({[prefix]: field}));
+		}
 		if(typeof field == 'object'){
-			return Object.entries(field).map(([key, val])=>subParse(val, key, processKey(nextKey, prefix)));
+			return Object.entries(field).map(([key, val])=>subFlatten(val, key, processKey(nextKey, prefix)));
 		}
 		result[prefix] = result[prefix] || {};
 		return result[prefix][kebobCase(nextKey)] = field;
 	};
-	subParse(styleObj);
-	return Object.entries(result).map(([selector, rules])=>{
-		const renderedRules = Object.entries(rules).map(([name, rule])=>`${indent}${name}: ${rule};\n`).join('');
-		return `${selector}{\n${renderedRules}}\n`;
-	}).join('');
-};
-// const inject = (cssString, elementId=false)=>{
-// 	if(elementId && document.getElementById(elementId)) return document.getElementById(elementId).innerHTML = cssString;
-// 	const style = document.createElement('style');
-// 	if(elementId) style.setAttribute('id', elementId);
-// 	style.innerHTML = cssString;
-// 	document.head.appendChild(style);
-// };
-const css = (strs, ...vals)=>{
-	let str = Array.isArray(strs) ? weave(strs, vals).join('') : strs;
-	let keys = [], result = {}, inComment=false;
-	picoparse([
-		[/\/\*/,                     ()=>inComment=true],
-		[/\*\//,                     ()=>inComment=false],
-		[/\/\/.*/,                   ()=>null],
-		[/([\w:\.&-,\*\s]+)\s*{/,    ([selector])=>{if(!inComment){keys.push(selector.trim())}}],
-		[/([\w+-]+)\s*:\s*([^;]+);/, ([key, val])=>{if(!inComment){result = put(result, keys.concat(key), val)}}],
-		[/}/,                        ()=>{if(!inComment){keys.pop()}}],
-	], str)
-	return convert(result);
+	subFlatten(styleObj)
+	return result;
 };
 
-module.exports = {
-	convert,
-	css,
-	//inject
+const obj2css = (styleObj, indent='')=>{
+	return Object.entries(styleObj).map(([key, val])=>{
+		if(isObj(val)){
+			if(key==='') return obj2css(val, indent);
+			return `${indent}${key}{\n${obj2css(val, indent+'\t')}\n${indent}}`;
+		}else{
+			return `${indent}${key}: ${val};`
+		}
+	}).join('\n');
+};
+
+const parse = (str)=>{
+	let keys = [], styleObj = {};
+	picoparse([
+		[/\/\*/,                     ()=>true],
+		[/\*\//,                     ()=>false],
+		[/\/\/.*/,                   ()=>null],
+		[/([\w@\.\(\):-\s,&\*]+){/,  ([selector])=>{keys.push(selector.trim())}],
+		[/([\w+-]+)\s*:\s*([^;]+);/, ([key, val])=>{styleObj = put(styleObj, keys.concat(key), val)}],
+		[/}/,                        ()=>{keys.pop()}],
+	], str);
+	return styleObj;
 }
+
+//Takes, object, string, or template tagged literal
+const css = (input, ...vals)=>{
+	if(Array.isArray(input)) input = weave(input, vals).join('');
+	if(typeof input == 'string') input = parse(input);
+	return obj2css(flatten(input));
+}
+
+css.parse = parse;
+css.flatten = flatten;
+css.obj2css = obj2css;
+css.inject = (input, ...vals)=>document.head.insertAdjacentHTML('beforeend', `<style>${css(input, ...vals)}</style>`);
+
+module.exports = css;
