@@ -22,14 +22,10 @@ const darken = (color,amt=0.2)=>{
 	const d=(clr)=>clr-(clr)*(per(amt));
 	return toHex({r:d(r),g:d(g),b:d(b),a});
 };
-const fade = (color, amt=0.2)=>{
-	let temp = parse(color);
-	temp.a=per(amt);
-	return toHex(temp);
-};
+const fade = (color, amt=0.2)=>toHex({...parse(color), a:per(amt)});
+
 const luminance = (color)=>{
 	const { r, g, b } = parse(color);
-	//return ((r * 299 + g * 587 + b * 114) / 1000) /255;
 	return (r * 299 + g * 587 + b * 114) / 255000;
 };
 const isDark = (color)=>luminance(color) <= 0.5;

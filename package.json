@@ -1,8 +1,8 @@
 {
   "name": "pico-css",
   "version": "3.0.0",
-  "description": "A micro css preprocessor using json",
-  "main": "css.js",
+  "description": "A tiny css preprocessor using javascript",
+  "main": "pico-css.js",
   "scripts": {
     "test": "pico-check ./tests",
     "dev": "pico-check --watch ./tests"
@@ -24,6 +24,5 @@
   "homepage": "https://github.com/stolksdorf/pico-css#readme",
   "devDependencies": {
     "pico-check": "^2.0.3"
-  },
-  "dependencies": {}
+  }
 }
