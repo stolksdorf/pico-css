@@ -1,7 +1,7 @@
 
 
 # Color Utils
-`pico-css` also ships with a simple set of color utilities that most CSS pre-processors have. Since `pico-css` is just JSON, these are utils are just javascript functions that can be easily used within your style objects.
+`pico-css` also ships with a simple set of color utilities that most CSS pre-processors have. Instead Since `pico-css` is just JSON, these are utils are just javascript functions that can be easily used within your style objects.
 
 If you need a bit more features check out [`color`](https://github.com/Qix-/color) for more features.
 

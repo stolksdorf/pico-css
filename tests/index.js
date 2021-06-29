@@ -1,51 +1,24 @@
-const css = require('../css.js');
-const colors = require('../colors.js');
+const css = require('../pico-css.js');
+const chroma = require('../chroma.js');
 
 
 module.exports = {
 	basic : require('./basic.test.js'),
-	colors : require('./colors.test.js'),
+	literal : require('./string_literal.test.js'),
+	chroma : require('./chroma.test.js'),
+	//$errors : require('./errors.test.js'),
 
-
-
-
-	complex_example : (t)=>{
-		const buttonMixin = (color='blue')=>{
-			return {
-				cursor : 'pointer',
-				backgroundColor : color,
-				'&:hover' : {
-					backgroundColor : colors.lighten(color, 0.2)
-				}
-			}
-		}
-
-		const str = css({
-			body: {
-				"margin-left": "20px",
-				marginTop: "20px",
-				width: "100%",
-				button: {
-					WebkitTransition: 'all 4s ease',
-					...buttonMixin("#BADA55")
-				}
-			}
-		}, '  ');
-
-		t.is(str,
-`body{
-  margin-left: 20px;
-  margin-top: 20px;
-  width: 100%;
-}
-body button{
-  -webkit-transition: all 4s ease;
-  cursor: pointer;
-  background-color: #BADA55;
-}
-body button:hover{
-  background-color: #EDFF88;
-}
-`)},
-
+	// $temp : (t)=>{
+	// 	chroma.fade('#f00', 0.5) // #ff00007f
+	// 	chroma.lighten('#C0FFEE', 0.1) // #c6ffef
+	// 	chroma.lighten('#C0FFEE', 0.4) // #d9fff4
+	// 	chroma.darken('#C0FFEE', 0.1) // #ace5d6
+	// 	chroma.darken('#C0FFEE', 0.4) // #73998e
+	// 	chroma.luminance({r: 34, g: 120, b: 200}) // 0.40
+	// 	chroma.luminance('#16a085') // 0.45
+	// 	chroma.isBright('purple') // false
+	// 	chroma.isBright('#bdc3c7') // true
+	// 	chroma.isDark('maroon') // true
+	// 	chroma.isDark('#f1c40f') // false
+	// }
 }

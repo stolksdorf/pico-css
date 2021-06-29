@@ -1,5 +1,4 @@
-const css = require('../css.js');
-const colors = require('../colors.js');
+const css = require('../pico-css.js');
 
 module.exports = {
 	nesting : (t)=>{
