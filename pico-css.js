@@ -73,7 +73,7 @@ const parse = (str)=>{
 		[/\/\*/,                     ()=>true],
 		[/\*\//,                     ()=>false],
 		[/\/\/.*/,                   ()=>null],
-		[/([\w@\.\(\):-\s,&\*]+){/,  ([selector])=>{keys.push(selector.trim())}],
+		[/([\w@\.\(\):\-\s,&\*>]+){/,  ([selector])=>{keys.push(selector.trim())}],
 		[/([\w+-]+)\s*:\s*([^;]+);/, ([key, val])=>{styleObj = put(styleObj, keys.concat(key), val)}],
 		[/}/,                        ()=>{keys.pop()}],
 	], str);
