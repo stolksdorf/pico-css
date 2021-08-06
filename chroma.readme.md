@@ -42,14 +42,14 @@ chroma.luminance('white')                 // 1
 ```
 
 
-#### `isDark(color, amount)` -> `boolean`
+#### `isDark(color)` -> `boolean`
 
 ```js
 chroma.isDark('maroon')  // true
 chroma.isDark('#f1c40f') // false
 ```
 
-#### `isBright(color, amount)` -> `boolean`
+#### `isBright(color)` -> `boolean`
 
 ```js
 chroma.isBright('purple')  // false

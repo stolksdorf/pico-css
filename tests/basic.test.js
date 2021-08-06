@@ -111,6 +111,27 @@ module.exports = {
 
 	},
 
+	commas : {
+
+		parent_selectors : (t)=>{
+
+			const parsed = css`
+				h1,div{
+					color : blue;
+					&:hover{
+						color : red;
+					}
+				}
+			`
+			t.is(parsed.length, 2);
+
+			t.is(parsed[0], { sel: 'h1,div', media: undefined, rules: { color: 'blue' } });
+			t.is(parsed[1], { sel: 'h1:hover,div:hover', media: undefined, rules: { color: 'red' } });
+		},
+
+
+	},
+
 	media_queries : {
 
 		external : (t)=>{

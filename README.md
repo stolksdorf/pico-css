@@ -1,5 +1,5 @@
 # 🎨 pico-css
-A micro css preprocessor written in JS for JS. Under 100 lines. Supports nesting, mixins, parent selectors, and injectable values.
+A micro css preprocessor written in JS for JS. Under 100 lines. Supports nesting, mixins, parent selectors, and injectable values. Also comes with a tiny color manipulation utility.
 
 [![npm version](https://badge.fury.io/js/pico-css.svg)](https://badge.fury.io/js/pico-css)
 
@@ -9,6 +9,8 @@ A micro css preprocessor written in JS for JS. Under 100 lines. Supports nesting
 ```bash
 npm install pico-css
 ```
+
+### usage
 
 ```js
 const css = require('pico-css');
@@ -34,7 +36,7 @@ css`
   }
 `;
 
-// Converts to
+// Converts to -->
 `body{
   margin-top: 20px;
 }
@@ -109,8 +111,8 @@ The `&` operator represents the parent selectors of a nested rule and is most co
 ```js
 css`
   p{
-    &:hover{ color : blue }
-    &.selected{ color : red }
+    &:hover{ color : blue; }
+    &.selected{ color : red; }
   }`;
 
 //-->
@@ -191,39 +193,6 @@ css`
 `;
 ```
 
-
-
-#### `css(styleObj) -> CSS String`
-Converts a style object into a string of CSS.
-
-```js
-const css = require('pico-css');
-
-css({
-  body: {
-    "margin-left": "20px",
-    marginTop: "20px",
-    p: {
-      color: "#BADA55",
-      '&:hover' : {
-        color: "#C0FF33",
-      }
-    }
-  }
-});
-
-//-->
-`"body{
-  margin-left: 20px;
-  margin-top: 20px;
-}
-body p{
-  color: #BADA55;
-}
-body p:hover{
-  color: #C0FF33;
-}"`
-```
 
 
 #### `css.inject(styleObj) / css.inject\`style\`` -> Style Tag`
