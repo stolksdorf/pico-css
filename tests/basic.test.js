@@ -129,7 +129,41 @@ module.exports = {
 			t.is(parsed[1], { sel: 'h1:hover,div:hover', media: undefined, rules: { color: 'red' } });
 		},
 
+		multilayer : (t)=>{
 
+			const parsed = css`
+				div{
+					h1,h2{
+						p{
+							span,a{
+								color : black;
+							}
+						}
+						&:hover{
+							color : blue;
+						}
+					}
+					background-color: white;
+				}
+			`;
+
+			t.is(parsed.length, 3);
+
+			t.is(parsed[0],{
+				sel: 'div h1 p span,div h1 p a,div h2 p span,div h2 p a', media: undefined,
+				rules: { color: 'black' }
+			});
+			t.is(parsed[1],{
+				sel: 'div h1:hover,div h2:hover', media: undefined,
+				rules: { color: 'blue' }
+			});
+			t.is(parsed[2],{
+				sel: 'div', media: undefined,
+				rules: { 'background-color': 'white' }
+			});
+
+
+		}
 	},
 
 	media_queries : {

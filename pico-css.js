@@ -31,8 +31,10 @@ const convertKeys = (keys)=>{
 				media=key;
 				return acc;
 			}
-			return acc.concat(key);
-		},[]).join(' ').replaceAll(' &', '').replaceAll(' :', ':'),
+			return acc.flatMap(sublist=>key.split(',').map(subkey=>sublist.concat(subkey)))
+		},[[]])
+			.map(arr=>arr.join(' ').replaceAll(' &', '').replaceAll(' :', ':'))
+			.join(','),
 		media
 	}
 };
