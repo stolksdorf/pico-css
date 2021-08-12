@@ -41,10 +41,9 @@ const convertKeys = (keys)=>{
 
 const parse = (str)=>{
 	const parsed = picoparse([
-		[/\s*\*\//,                  ()=>false],
-		[/\s*\/\*/,                  ()=>true],
+		[/\/\*(\*(?!\/)|[^*])*\*\//, ()=>null],
 		[/\s*\/\/.*/,                ()=>null],
-		[/([^{};]+){/,               ([selector])=>['selc', selector.trim()]],
+		[/([^{};\s][^{};]*){/,       ([selector])=>['selc', selector.trim()]],
 		[/([\w+-]+)\s*:\s*([^;]+);/, ([key, val])=>['rule', key, val]],
 		[/}/,                        ()=>['close']],
 	], str);
@@ -59,6 +58,7 @@ const parse = (str)=>{
 			if(sel!=last.sel || media!=last.media){
 				acc.push({sel,media,rules:{}});
 			}
+			if(val.indexOf('}')!==-1||val.indexOf(':')!==-1) throw new Error(`ERR: CSS parsing error near: ${sel} -> ${key}`);
 			acc[acc.length-1].rules[key] = val;
 		}
 		return acc;

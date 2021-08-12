@@ -132,6 +132,7 @@ module.exports = {
 		multilayer : (t)=>{
 
 			const parsed = css`
+
 				div{
 					h1,h2{
 						p{
@@ -167,7 +168,6 @@ module.exports = {
 	},
 
 	media_queries : {
-
 		external : (t)=>{
 			const parsed = css`
 				@media only screen and (max-width: 300px){
@@ -175,7 +175,6 @@ module.exports = {
 						color: blue;
 					}
 				}
-
 				.test{
 					color : red;
 				}
