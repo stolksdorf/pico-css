@@ -31,7 +31,7 @@ const convertKeys = (keys)=>{
 				media=key;
 				return acc;
 			}
-			return acc.flatMap(sublist=>key.split(',').map(subkey=>sublist.concat(subkey)))
+			return acc.flatMap(sublist=>key.split(',').map(subkey=>sublist.concat(subkey.trim())))
 		},[[]])
 			.map(arr=>arr.join(' ').replaceAll(' &', '').replaceAll(' :', ':'))
 			.join(','),

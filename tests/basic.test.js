@@ -164,7 +164,37 @@ module.exports = {
 			});
 
 
-		}
+		},
+
+
+		double_ands : (t)=>{
+			const parsed = css`
+				div{
+					color : red;
+					&:hover, &.foo{
+						color : blue;
+					}
+
+					.bar{
+						font-size: 3em;
+					}
+				}
+
+			`;
+			t.is(parsed.length, 3);
+			t.is(parsed[0],{
+				sel: 'div', media: undefined,
+				rules: { color: 'red' }
+			});
+			t.is(parsed[1],{
+				sel: 'div:hover,div.foo', media: undefined,
+				rules: { color: 'blue' }
+			});
+			t.is(parsed[2],{
+				sel: 'div .bar', media: undefined,
+				rules: { 'font-size': '3em' }
+			});
+		},
 	},
 
 	media_queries : {
